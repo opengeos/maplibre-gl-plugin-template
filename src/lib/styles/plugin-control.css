@@ -1,0 +1,202 @@
+/**
+ * MapLibre GL Plugin Control Styles
+ *
+ * This stylesheet provides the base styles for the plugin control.
+ * Customize these styles to match your plugin's design.
+ */
+
+/* Container */
+.plugin-control {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+.plugin-control.collapsed {
+  width: auto !important;
+}
+
+.plugin-control.collapsed .plugin-control-content {
+  display: none;
+}
+
+.plugin-control.collapsed .plugin-control-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* Panel */
+.plugin-control-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.plugin-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.plugin-control.collapsed .plugin-control-header {
+  border-bottom: none;
+}
+
+.plugin-control-title {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plugin-control-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.plugin-control-toggle:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+.plugin-control-toggle:focus {
+  outline: 2px solid #4a90d9;
+  outline-offset: 2px;
+}
+
+.plugin-control-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+/* Content */
+.plugin-control-content {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.plugin-control-placeholder {
+  margin: 0;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Scrollbar styling */
+.plugin-control-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.plugin-control-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.plugin-control-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.plugin-control-content::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Form elements */
+.plugin-control-group {
+  margin-bottom: 12px;
+}
+
+.plugin-control-group:last-child {
+  margin-bottom: 0;
+}
+
+.plugin-control-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+}
+
+.plugin-control-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.plugin-control-input:focus {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+}
+
+.plugin-control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: #4a90d9;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.plugin-control-button:hover {
+  background: #3a7bc8;
+}
+
+.plugin-control-button:focus {
+  outline: 2px solid #4a90d9;
+  outline-offset: 2px;
+}
+
+.plugin-control-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Utility classes */
+.plugin-control-flex {
+  display: flex;
+  gap: 8px;
+}
+
+.plugin-control-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plugin-control-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 12px 0;
+}

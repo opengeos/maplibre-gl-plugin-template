@@ -1,0 +1,261 @@
+import type { IControl, Map as MapLibreMap } from 'maplibre-gl';
+import type {
+  PluginControlOptions,
+  PluginState,
+  PluginControlEvent,
+  PluginControlEventHandler,
+} from './types';
+
+/**
+ * Default options for the PluginControl
+ */
+const DEFAULT_OPTIONS: Required<PluginControlOptions> = {
+  collapsed: false,
+  position: 'top-right',
+  title: 'Plugin Control',
+  panelWidth: 300,
+  className: '',
+};
+
+/**
+ * Event handlers map type
+ */
+type EventHandlersMap = globalThis.Map<PluginControlEvent, Set<PluginControlEventHandler>>;
+
+/**
+ * A template MapLibre GL control that can be customized for various plugin needs.
+ *
+ * @example
+ * ```typescript
+ * const control = new PluginControl({
+ *   title: 'My Custom Control',
+ *   collapsed: false,
+ *   panelWidth: 320,
+ * });
+ * map.addControl(control, 'top-right');
+ * ```
+ */
+export class PluginControl implements IControl {
+  private _map?: MapLibreMap;
+  private _container?: HTMLElement;
+  private _panel?: HTMLElement;
+  private _options: Required<PluginControlOptions>;
+  private _state: PluginState;
+  private _eventHandlers: EventHandlersMap = new globalThis.Map();
+
+  /**
+   * Creates a new PluginControl instance.
+   *
+   * @param options - Configuration options for the control
+   */
+  constructor(options?: Partial<PluginControlOptions>) {
+    this._options = { ...DEFAULT_OPTIONS, ...options };
+    this._state = {
+      collapsed: this._options.collapsed,
+      panelWidth: this._options.panelWidth,
+      data: {},
+    };
+  }
+
+  /**
+   * Called when the control is added to the map.
+   * Implements the IControl interface.
+   *
+   * @param map - The MapLibre GL map instance
+   * @returns The control's container element
+   */
+  onAdd(map: MapLibreMap): HTMLElement {
+    this._map = map;
+    this._container = this._createContainer();
+    this._panel = this._createPanel();
+    this._container.appendChild(this._panel);
+
+    if (this._state.collapsed) {
+      this._container.classList.add('collapsed');
+    }
+
+    return this._container;
+  }
+
+  /**
+   * Called when the control is removed from the map.
+   * Implements the IControl interface.
+   */
+  onRemove(): void {
+    this._container?.parentNode?.removeChild(this._container);
+    this._map = undefined;
+    this._container = undefined;
+    this._panel = undefined;
+    this._eventHandlers.clear();
+  }
+
+  /**
+   * Gets the current state of the control.
+   *
+   * @returns The current plugin state
+   */
+  getState(): PluginState {
+    return { ...this._state };
+  }
+
+  /**
+   * Updates the control state.
+   *
+   * @param newState - Partial state to merge with current state
+   */
+  setState(newState: Partial<PluginState>): void {
+    this._state = { ...this._state, ...newState };
+    this._emit('statechange');
+  }
+
+  /**
+   * Toggles the collapsed state of the control panel.
+   */
+  toggle(): void {
+    this._state.collapsed = !this._state.collapsed;
+
+    if (this._container) {
+      if (this._state.collapsed) {
+        this._container.classList.add('collapsed');
+        this._emit('collapse');
+      } else {
+        this._container.classList.remove('collapsed');
+        this._emit('expand');
+      }
+    }
+
+    this._emit('statechange');
+  }
+
+  /**
+   * Expands the control panel.
+   */
+  expand(): void {
+    if (this._state.collapsed) {
+      this.toggle();
+    }
+  }
+
+  /**
+   * Collapses the control panel.
+   */
+  collapse(): void {
+    if (!this._state.collapsed) {
+      this.toggle();
+    }
+  }
+
+  /**
+   * Registers an event handler.
+   *
+   * @param event - The event type to listen for
+   * @param handler - The callback function
+   */
+  on(event: PluginControlEvent, handler: PluginControlEventHandler): void {
+    if (!this._eventHandlers.has(event)) {
+      this._eventHandlers.set(event, new Set());
+    }
+    this._eventHandlers.get(event)!.add(handler);
+  }
+
+  /**
+   * Removes an event handler.
+   *
+   * @param event - The event type
+   * @param handler - The callback function to remove
+   */
+  off(event: PluginControlEvent, handler: PluginControlEventHandler): void {
+    this._eventHandlers.get(event)?.delete(handler);
+  }
+
+  /**
+   * Gets the map instance.
+   *
+   * @returns The MapLibre GL map instance or undefined if not added to a map
+   */
+  getMap(): MapLibreMap | undefined {
+    return this._map;
+  }
+
+  /**
+   * Gets the control container element.
+   *
+   * @returns The container element or undefined if not added to a map
+   */
+  getContainer(): HTMLElement | undefined {
+    return this._container;
+  }
+
+  /**
+   * Emits an event to all registered handlers.
+   *
+   * @param event - The event type to emit
+   */
+  private _emit(event: PluginControlEvent): void {
+    const handlers = this._eventHandlers.get(event);
+    if (handlers) {
+      const eventData = { type: event, state: this.getState() };
+      handlers.forEach((handler) => handler(eventData));
+    }
+  }
+
+  /**
+   * Creates the main container element for the control.
+   *
+   * @returns The container element
+   */
+  private _createContainer(): HTMLElement {
+    const container = document.createElement('div');
+    container.className = `maplibregl-ctrl maplibregl-ctrl-group plugin-control${
+      this._options.className ? ` ${this._options.className}` : ''
+    }`;
+    container.style.width = `${this._options.panelWidth}px`;
+    return container;
+  }
+
+  /**
+   * Creates the panel element with header and content areas.
+   *
+   * @returns The panel element
+   */
+  private _createPanel(): HTMLElement {
+    const panel = document.createElement('div');
+    panel.className = 'plugin-control-panel';
+
+    // Create header
+    const header = document.createElement('div');
+    header.className = 'plugin-control-header';
+
+    const title = document.createElement('span');
+    title.className = 'plugin-control-title';
+    title.textContent = this._options.title;
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'plugin-control-toggle';
+    toggleBtn.type = 'button';
+    toggleBtn.setAttribute('aria-label', 'Toggle panel');
+    toggleBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+      </svg>
+    `;
+    toggleBtn.addEventListener('click', () => this.toggle());
+
+    header.appendChild(title);
+    header.appendChild(toggleBtn);
+
+    // Create content area
+    const content = document.createElement('div');
+    content.className = 'plugin-control-content';
+    content.innerHTML = `
+      <p class="plugin-control-placeholder">
+        Add your custom plugin content here.
+      </p>
+    `;
+
+    panel.appendChild(header);
+    panel.appendChild(content);
+
+    return panel;
+  }
+}
