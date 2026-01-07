@@ -24,6 +24,12 @@ function App() {
       zoom: 2,
     });
 
+    // Add navigation controls to top-right
+    mapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    // Add fullscreen control to top-right (after navigation)
+    mapInstance.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
     mapInstance.on('load', () => {
       setMap(mapInstance);
     });

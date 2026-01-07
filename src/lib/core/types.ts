@@ -5,8 +5,8 @@ import type { Map } from 'maplibre-gl';
  */
 export interface PluginControlOptions {
   /**
-   * Whether the control panel should start collapsed
-   * @default false
+   * Whether the control panel should start collapsed (showing only the toggle button)
+   * @default true
    */
   collapsed?: boolean;
 

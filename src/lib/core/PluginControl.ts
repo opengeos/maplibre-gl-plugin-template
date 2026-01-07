@@ -10,7 +10,7 @@ import type {
  * Default options for the PluginControl
  */
 const DEFAULT_OPTIONS: Required<PluginControlOptions> = {
-  collapsed: false,
+  collapsed: true,
   position: 'top-right',
   title: 'Plugin Control',
   panelWidth: 300,
@@ -70,8 +70,9 @@ export class PluginControl implements IControl {
     this._panel = this._createPanel();
     this._container.appendChild(this._panel);
 
-    if (this._state.collapsed) {
-      this._container.classList.add('collapsed');
+    // Set initial panel state
+    if (!this._state.collapsed) {
+      this._panel.classList.add('expanded');
     }
 
     return this._container;
@@ -114,12 +115,12 @@ export class PluginControl implements IControl {
   toggle(): void {
     this._state.collapsed = !this._state.collapsed;
 
-    if (this._container) {
+    if (this._panel) {
       if (this._state.collapsed) {
-        this._container.classList.add('collapsed');
+        this._panel.classList.remove('expanded');
         this._emit('collapse');
       } else {
-        this._container.classList.remove('collapsed');
+        this._panel.classList.add('expanded');
         this._emit('expand');
       }
     }
@@ -201,6 +202,7 @@ export class PluginControl implements IControl {
 
   /**
    * Creates the main container element for the control.
+   * Contains a toggle button (29x29) matching navigation control size.
    *
    * @returns The container element
    */
@@ -209,20 +211,41 @@ export class PluginControl implements IControl {
     container.className = `maplibregl-ctrl maplibregl-ctrl-group plugin-control${
       this._options.className ? ` ${this._options.className}` : ''
     }`;
-    container.style.width = `${this._options.panelWidth}px`;
+
+    // Create toggle button (29x29 to match navigation control)
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'plugin-control-toggle';
+    toggleBtn.type = 'button';
+    toggleBtn.setAttribute('aria-label', this._options.title);
+    toggleBtn.innerHTML = `
+      <span class="plugin-control-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </span>
+    `;
+    toggleBtn.addEventListener('click', () => this.toggle());
+
+    container.appendChild(toggleBtn);
+
     return container;
   }
 
   /**
    * Creates the panel element with header and content areas.
+   * Panel is positioned as a dropdown below the toggle button.
    *
    * @returns The panel element
    */
   private _createPanel(): HTMLElement {
     const panel = document.createElement('div');
     panel.className = 'plugin-control-panel';
+    panel.style.width = `${this._options.panelWidth}px`;
 
-    // Create header
+    // Create header with title and close button
     const header = document.createElement('div');
     header.className = 'plugin-control-header';
 
@@ -230,19 +253,15 @@ export class PluginControl implements IControl {
     title.className = 'plugin-control-title';
     title.textContent = this._options.title;
 
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'plugin-control-toggle';
-    toggleBtn.type = 'button';
-    toggleBtn.setAttribute('aria-label', 'Toggle panel');
-    toggleBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-      </svg>
-    `;
-    toggleBtn.addEventListener('click', () => this.toggle());
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'plugin-control-close';
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close panel');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', () => this.collapse());
 
     header.appendChild(title);
-    header.appendChild(toggleBtn);
+    header.appendChild(closeBtn);
 
     // Create content area
     const content = document.createElement('div');

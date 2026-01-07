@@ -11,12 +11,19 @@ const map = new maplibregl.Map({
   zoom: 2,
 });
 
+// Add navigation controls to top-right
+map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+// Add fullscreen control to top-right (after navigation)
+map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
 // Add plugin control when map loads
 map.on('load', () => {
   // Create the plugin control with custom options
+  // Set collapsed: true to start with just the 29x29 button (like navigation control)
   const pluginControl = new PluginControl({
     title: 'My Plugin',
-    collapsed: false,
+    collapsed: true,
     panelWidth: 300,
   });
 

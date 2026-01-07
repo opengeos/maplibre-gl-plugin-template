@@ -5,7 +5,7 @@ import type { PluginState } from '../core/types';
  * Default initial state for the plugin
  */
 const DEFAULT_STATE: PluginState = {
-  collapsed: false,
+  collapsed: true,
   panelWidth: 300,
   data: {},
 };

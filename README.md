@@ -101,10 +101,10 @@ The main control class implementing MapLibre's `IControl` interface.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `collapsed` | `boolean` | `false` | Whether the panel starts collapsed |
+| `collapsed` | `boolean` | `true` | Whether the panel starts collapsed (showing only the 29x29 toggle button) |
 | `position` | `string` | `'top-right'` | Control position on the map |
 | `title` | `string` | `'Plugin Control'` | Title displayed in the header |
-| `panelWidth` | `number` | `300` | Width of the panel in pixels |
+| `panelWidth` | `number` | `300` | Width of the dropdown panel in pixels |
 | `className` | `string` | `''` | Custom CSS class name |
 
 #### Methods
