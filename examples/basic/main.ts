@@ -23,12 +23,15 @@ map.on('load', () => {
   // Set collapsed: true to start with just the 29x29 button (like navigation control)
   const pluginControl = new PluginControl({
     title: 'My Plugin',
-    collapsed: true,
+    collapsed: false,
     panelWidth: 300,
   });
 
   // Add control to the map
   map.addControl(pluginControl, 'top-right');
+
+  // Add Globe control to the map
+  map.addControl(new maplibregl.GlobeControl(), 'top-right');
 
   // Listen for state changes
   pluginControl.on('statechange', (event) => {

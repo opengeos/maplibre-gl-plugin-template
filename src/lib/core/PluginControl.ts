@@ -37,11 +37,17 @@ type EventHandlersMap = globalThis.Map<PluginControlEvent, Set<PluginControlEven
  */
 export class PluginControl implements IControl {
   private _map?: MapLibreMap;
+  private _mapContainer?: HTMLElement;
   private _container?: HTMLElement;
   private _panel?: HTMLElement;
   private _options: Required<PluginControlOptions>;
   private _state: PluginState;
   private _eventHandlers: EventHandlersMap = new globalThis.Map();
+
+  // Panel positioning handlers
+  private _resizeHandler: (() => void) | null = null;
+  private _mapResizeHandler: (() => void) | null = null;
+  private _clickOutsideHandler: ((e: MouseEvent) => void) | null = null;
 
   /**
    * Creates a new PluginControl instance.
@@ -66,13 +72,23 @@ export class PluginControl implements IControl {
    */
   onAdd(map: MapLibreMap): HTMLElement {
     this._map = map;
+    this._mapContainer = map.getContainer();
     this._container = this._createContainer();
     this._panel = this._createPanel();
-    this._container.appendChild(this._panel);
+
+    // Append panel to map container for independent positioning (avoids overlap with other controls)
+    this._mapContainer.appendChild(this._panel);
+
+    // Setup event listeners for panel positioning and click-outside
+    this._setupEventListeners();
 
     // Set initial panel state
     if (!this._state.collapsed) {
       this._panel.classList.add('expanded');
+      // Update position after control is added to DOM
+      requestAnimationFrame(() => {
+        this._updatePanelPosition();
+      });
     }
 
     return this._container;
@@ -83,8 +99,28 @@ export class PluginControl implements IControl {
    * Implements the IControl interface.
    */
   onRemove(): void {
+    // Remove event listeners
+    if (this._resizeHandler) {
+      window.removeEventListener('resize', this._resizeHandler);
+      this._resizeHandler = null;
+    }
+    if (this._mapResizeHandler && this._map) {
+      this._map.off('resize', this._mapResizeHandler);
+      this._mapResizeHandler = null;
+    }
+    if (this._clickOutsideHandler) {
+      document.removeEventListener('click', this._clickOutsideHandler);
+      this._clickOutsideHandler = null;
+    }
+
+    // Remove panel from map container
+    this._panel?.parentNode?.removeChild(this._panel);
+
+    // Remove button container from control stack
     this._container?.parentNode?.removeChild(this._container);
+
     this._map = undefined;
+    this._mapContainer = undefined;
     this._container = undefined;
     this._panel = undefined;
     this._eventHandlers.clear();
@@ -121,6 +157,7 @@ export class PluginControl implements IControl {
         this._emit('collapse');
       } else {
         this._panel.classList.add('expanded');
+        this._updatePanelPosition();
         this._emit('expand');
       }
     }
@@ -276,5 +313,113 @@ export class PluginControl implements IControl {
     panel.appendChild(content);
 
     return panel;
+  }
+
+  /**
+   * Setup event listeners for panel positioning and click-outside behavior.
+   */
+  private _setupEventListeners(): void {
+    // Click outside to close (check both container and panel since they're now separate)
+    this._clickOutsideHandler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        this._container &&
+        this._panel &&
+        !this._container.contains(target) &&
+        !this._panel.contains(target)
+      ) {
+        this.collapse();
+      }
+    };
+    document.addEventListener('click', this._clickOutsideHandler);
+
+    // Update panel position on window resize
+    this._resizeHandler = () => {
+      if (!this._state.collapsed) {
+        this._updatePanelPosition();
+      }
+    };
+    window.addEventListener('resize', this._resizeHandler);
+
+    // Update panel position on map resize (e.g., sidebar toggle)
+    this._mapResizeHandler = () => {
+      if (!this._state.collapsed) {
+        this._updatePanelPosition();
+      }
+    };
+    this._map?.on('resize', this._mapResizeHandler);
+  }
+
+  /**
+   * Detect which corner the control is positioned in.
+   *
+   * @returns The position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+   */
+  private _getControlPosition(): 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' {
+    const parent = this._container?.parentElement;
+    if (!parent) return 'top-right'; // Default
+
+    if (parent.classList.contains('maplibregl-ctrl-top-left')) return 'top-left';
+    if (parent.classList.contains('maplibregl-ctrl-top-right')) return 'top-right';
+    if (parent.classList.contains('maplibregl-ctrl-bottom-left')) return 'bottom-left';
+    if (parent.classList.contains('maplibregl-ctrl-bottom-right')) return 'bottom-right';
+
+    return 'top-right'; // Default
+  }
+
+  /**
+   * Update the panel position based on button location and control corner.
+   * Positions the panel next to the button, expanding in the appropriate direction.
+   */
+  private _updatePanelPosition(): void {
+    if (!this._container || !this._panel || !this._mapContainer) return;
+
+    // Get the toggle button (first child of container)
+    const button = this._container.querySelector('.plugin-control-toggle');
+    if (!button) return;
+
+    const buttonRect = button.getBoundingClientRect();
+    const mapRect = this._mapContainer.getBoundingClientRect();
+    const position = this._getControlPosition();
+
+    // Calculate button position relative to map container
+    const buttonTop = buttonRect.top - mapRect.top;
+    const buttonBottom = mapRect.bottom - buttonRect.bottom;
+    const buttonLeft = buttonRect.left - mapRect.left;
+    const buttonRight = mapRect.right - buttonRect.right;
+
+    const panelGap = 5; // Gap between button and panel
+
+    // Reset all positioning
+    this._panel.style.top = '';
+    this._panel.style.bottom = '';
+    this._panel.style.left = '';
+    this._panel.style.right = '';
+
+    switch (position) {
+      case 'top-left':
+        // Panel expands down and to the right
+        this._panel.style.top = `${buttonTop + buttonRect.height + panelGap}px`;
+        this._panel.style.left = `${buttonLeft}px`;
+        break;
+
+      case 'top-right':
+        // Panel expands down and to the left
+        this._panel.style.top = `${buttonTop + buttonRect.height + panelGap}px`;
+        this._panel.style.right = `${buttonRight}px`;
+        break;
+
+      case 'bottom-left':
+        // Panel expands up and to the right
+        this._panel.style.bottom = `${buttonBottom + buttonRect.height + panelGap}px`;
+        this._panel.style.left = `${buttonLeft}px`;
+        break;
+
+      case 'bottom-right':
+        // Panel expands up and to the left
+        this._panel.style.bottom = `${buttonBottom + buttonRect.height + panelGap}px`;
+        this._panel.style.right = `${buttonRight}px`;
+        break;
+    }
   }
 }
