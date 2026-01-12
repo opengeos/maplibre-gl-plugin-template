@@ -222,10 +222,10 @@ The examples can be run using Docker. The image is automatically built and publi
 
 ```bash
 # Pull the latest image
-docker pull ghcr.io/opengeos/maplibre-gl-plugin-template:main
+docker pull ghcr.io/opengeos/maplibre-gl-plugin-template:latest
 
 # Run the container
-docker run -p 8080:80 ghcr.io/opengeos/maplibre-gl-plugin-template:main
+docker run -p 8080:80 ghcr.io/opengeos/maplibre-gl-plugin-template:latest
 ```
 
 Then open http://localhost:8080 in your browser to view the examples.
@@ -244,9 +244,9 @@ docker run -p 8080:80 maplibre-gl-plugin-template
 
 | Tag | Description |
 |-----|-------------|
-| `main` | Latest build from main branch |
-| `v*` | Semantic version releases (e.g., `v1.0.0`) |
-| `sha-*` | Specific commit builds |
+| `latest` | Latest release |
+| `x.y.z` | Specific version (e.g., `1.0.0`) |
+| `x.y` | Minor version (e.g., `1.0`) |
 
 ## Customization
 
