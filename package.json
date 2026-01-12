@@ -1,6 +1,6 @@
 {
   "name": "maplibre-gl-plugin-template",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A template for creating MapLibre GL JS plugins with TypeScript and React support",
   "type": "module",
   "main": "./dist/index.cjs",
