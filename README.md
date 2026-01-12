@@ -214,6 +214,40 @@ maplibre-gl-plugin-template/
 └── .github/workflows/        # CI/CD workflows
 ```
 
+## Docker
+
+The examples can be run using Docker. The image is automatically built and published to GitHub Container Registry.
+
+### Pull and Run
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/opengeos/maplibre-gl-plugin-template:main
+
+# Run the container
+docker run -p 8080:80 ghcr.io/opengeos/maplibre-gl-plugin-template:main
+```
+
+Then open http://localhost:8080 in your browser to view the examples.
+
+### Build Locally
+
+```bash
+# Build the image
+docker build -t maplibre-gl-plugin-template .
+
+# Run the container
+docker run -p 8080:80 maplibre-gl-plugin-template
+```
+
+### Available Tags
+
+| Tag | Description |
+|-----|-------------|
+| `main` | Latest build from main branch |
+| `v*` | Semantic version releases (e.g., `v1.0.0`) |
+| `sha-*` | Specific commit builds |
+
 ## Customization
 
 To use this template for your own plugin:
