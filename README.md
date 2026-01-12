@@ -228,7 +228,7 @@ docker pull ghcr.io/opengeos/maplibre-gl-plugin-template:latest
 docker run -p 8080:80 ghcr.io/opengeos/maplibre-gl-plugin-template:latest
 ```
 
-Then open http://localhost:8080 in your browser to view the examples.
+Then open http://localhost:8080/maplibre-gl-plugin-template/ in your browser to view the examples.
 
 ### Build Locally
 
