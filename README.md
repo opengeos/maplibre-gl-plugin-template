@@ -4,6 +4,8 @@ A template for creating MapLibre GL JS plugins with TypeScript and React support
 
 [![npm version](https://img.shields.io/npm/v/maplibre-gl-plugin-template.svg)](https://www.npmjs.com/package/maplibre-gl-plugin-template)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/p/github/opengeos/maplibre-gl-plugin-template)
+[![Open in StackBlitz](https://img.shields.io/badge/Open%20in-StackBlitz-blue?logo=stackblitz)](https://stackblitz.com/github/opengeos/maplibre-gl-plugin-template)
 
 ## Features
 
