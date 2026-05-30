@@ -250,6 +250,16 @@ docker run -p 8080:80 maplibre-gl-plugin-template
 | `x.y.z` | Specific version (e.g., `1.0.0`) |
 | `x.y` | Minor version (e.g., `1.0`) |
 
+### Publish to npm
+
+```bash
+npm login
+npm whoami
+npm publish --access public
+```
+
+Set up Trusted Publisher on npmjs.com
+
 ## Customization
 
 To use this template for your own plugin:
