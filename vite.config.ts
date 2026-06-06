@@ -8,8 +8,13 @@ export default defineConfig({
     react(),
     dts({
       include: ['src'],
-      outDir: 'dist/types',
-      rollupTypes: false,
+      outDirs: 'dist/types',
+      entryRoot: 'src',
+      tsconfigPath: './tsconfig.build.json',
+      // Roll up declarations into flat, self-contained per-entry files so
+      // relative imports never break Node16 ESM/CJS resolution. The build
+      // script then copies them to .d.cts for the `require` condition.
+      bundleTypes: true,
     }),
   ],
   resolve: {
