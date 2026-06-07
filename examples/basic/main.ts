@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // Create map
 const map = new maplibregl.Map({
   container: 'map',
-  style: 'https://demotiles.maplibre.org/style.json',
+  style: 'https://tiles.openfreemap.org/styles/positron',
   center: [0, 0],
   zoom: 2,
 });
